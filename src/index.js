@@ -1,27 +1,28 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import bookRoutes from './routes/bookRoutes.js';
-import loanRoutes from './routes/loanRoutes.js';
-import memberRoutes from './routes/memberRoutes.js'; 
-import authorRoutes from './routes/authorRoutes.js';
-import categoryRoutes from './routes/categoryRoutes.js';
+import cors from 'cors';
+import apiRoutes from './routes/api.js'; // Pastikan file api.js ada di folder routes
 
+// 1. Inisialisasi
 dotenv.config();
-
 const app = express();
-app.use(express.json());
 
-// Grouping Routes
-app.use('/api/books', bookRoutes);
-app.use('/api/loans', loanRoutes);
-app.use('/api/members', memberRoutes);
-app.use('/api/authors', authorRoutes);
-app.use('/api/categories', categoryRoutes);
+// 2. Middleware
+app.use(cors()); // Supaya API bisa diakses dari mana saja
+app.use(express.json()); // Supaya bisa baca data JSON dari body request
 
-app.get('/', (req, res) => res.send('Smart Library API is Running...'));
+// 3. Jembatan Utama API
+// Semua rute (authors, categories, reports) sekarang lewat sini
+app.use('/api', apiRoutes); 
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+// 4. Rute Tes (Buka http://localhost:3000 di browser)
+app.get('/', (req, res) => {
+    res.send('✅ Smart Library API is Running...!');
 });
 
+// 5. Jalankan Server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server nyala di http://localhost:${PORT}`);
+    console.log(`📊 Cek Laporan di http://localhost:3000/api/reports/stats`);
+});
