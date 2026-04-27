@@ -24,10 +24,37 @@ router.get('/books', async (req, res) => {
         res.json({ success: true, data: result.rows });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
-
+// Endpoint untuk mengambil semua kategori
+router.get('/categories', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM categories'); // Pastikan nama tabel di Neon 'categories'
+        res.json({
+            success: true,
+            data: result.rows
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
 // 3. RETURN LOGIC (Buat tugas)
 router.post('/loans/return/:id', async (req, res) => {
-    // ... (kode return logic yang tadi aku kasih)
-});
+    const { id } = req.params; // ID ini akan menangkap kode panjang tadi
+    try {
+        const result = await pool.query(
+            'UPDATE loans SET return_date = NOW() WHERE id = $1 RETURNING *',
+            [id]
+        );
 
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, message: "Data peminjaman tidak ditemukan" });
+        }
+
+        res.json({ success: true, message: "Buku berhasil dikembalikan", data: result.rows[0] });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 export default router;
